@@ -1,3 +1,12 @@
+<h1 align="center">Time24</h1>
+<h3 align="center">An open-source time-tracking software</h3>
+
+<p align="center">
+    <a href="https://discord.gg/AKvf6s7xBX">
+        <img src="https://img.shields.io/discord/837991637148893194?style=flat-square">
+    </a>
+</p>
+
 ## About the project!
 
 The purpose of this project is to simplify the documentation of working hours and at the same time to find ways to improve working hours. 
@@ -7,12 +16,10 @@ The working hours are saved in a JSON file and at a later date it can be read ou
 This project has been built in [Dart](https://dart.dev/) using the [Flutter](https://flutter.io/) framework, which allows to build an app for mobile, desktop & web, from a single codebase.
 
 <p align="center">
-	 ![home]
-	 ![settings]
+  <img src="https://github.com/simuldev/time24/blob/dev/screenshots/home.png" width="256" hspace="4">
+  <img src="https://github.com/simuldev/time24/blob/dev/screenshots/add_time_stamp.png" width="256" hspace="4">
+  <img src="https://github.com/simuldev/time24/blob/dev/screenshots/settings.png" width="256" hspace="4">
 </p>
-
-[home]: screenshots/home.png "Home"
-[settings]: screenshots/settings.png "Settings"
 
 ## Features
 
