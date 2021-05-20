@@ -1,3 +1,6 @@
+<p align="center">
+  <img src="https://github.com/simuldev/time24/blob/dev/screenshots/logo.png">
+</p>
 <h1 align="center">Time24</h1>
 <h3 align="center">An open-source time-tracking software</h3>
 
@@ -57,6 +60,6 @@ There you go.
 
 ## License
 
-This project is licensed under the GNU GPL v3 License - see the  [LICENSE.md](https://github.com/simuldev/time24/blob/dev/LICENSE.md)  file for details.
+This project is licensed under the GNU GPL v3 License - see the  [LICENSE.md](https://github.com/simuldev/time24/blob/master/LICENSE.md)  file for details.
 
 
