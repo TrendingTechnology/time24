@@ -40,7 +40,7 @@ This project has been built in [Dart](https://dart.dev/) using the [Flutter](htt
 
 ## Contributing
 
-If you want to take the time to make this project better, please read the [contributing guides](https://github.com/jesusrp98/spacex-go/blob/master/CONTRIBUTING.md) first. Then, you can open an new [issue](https://github.com/jesusrp98/spacex-go/issues/new/choose), of a [pull request](https://github.com/jesusrp98/spacex-go/compare).
+If you want to take the time to make this project better, please read the [contributing guides](https://github.com/simuldev/time24/blob/master/CONTRIBUTING.md) first. Then, you can open an new [issue](https://github.com/simuldev/time24/issues/new), of a [pull request](https://github.com/simuldev/time24/compare).
 
 ## Download & install
 First, clone the repository with the ‘clone’ command, or just download the zip.  
