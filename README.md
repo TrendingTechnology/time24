@@ -1,16 +1,51 @@
-# time24
+[home]: screenshots/home.png "Home"
+[settings]: screenshots/settings.png "Settings"
 
-A new Flutter project.
+## About the project!
 
-## Getting Started
+The purpose of this project is to simplify the documentation of working hours and at the same time to find ways to improve working hours. 
 
-This project is a starting point for a Flutter application.
+The working hours are saved in a JSON file and at a later date it can be read out as a JSON or PDF file.
 
-A few resources to get you started if this is your first Flutter project:
+This project has been built in [Dart](https://dart.dev/) using the [Flutter](https://flutter.io/) framework, which allows to build an app for mobile, desktop & web, from a single codebase.
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+<p align="center">
+	 ![home]
+	 ![settings]
+</p>
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Features
+
+- Simple documentation of working hours
+- List of weekly working hours
+- Summary of weekly earnings
+
+## Planned features
+
+- Edit working hours
+- Creation of a PDF file with all data in a selected period
+- Overview of all previous entries
+- Storage in the cloud from various providers
+
+## Contributing
+
+If you want to take the time to make this project better, please read the [contributing guides](https://github.com/jesusrp98/spacex-go/blob/master/CONTRIBUTING.md) first. Then, you can open an new [issue](https://github.com/jesusrp98/spacex-go/issues/new/choose), of a [pull request](https://github.com/jesusrp98/spacex-go/compare).
+
+## Download & install
+First, clone the repository with the ‘clone’ command, or just download the zip.  
+`$ git clone https://github.com/simuldev/time24.git`
+
+Then, download  [Visual Studio Code](https://code.visualstudio.com/), with their respective  [Flutter editor plugins](https://flutter.io/get-started/editor/). For more information about Flutter installation procedure, check the  [official install guide](https://flutter.io/get-started/install/).
+
+Install dependencies from pubspec.yaml by running  `flutter packages get`  from the project root (see  [using packages documentation](https://flutter.io/using-packages/#adding-a-package-dependency-to-an-app)  for details and how to do this in the editor).
+
+There you go.
+
+## Authors
+- **scarpex** - lead developer: [GitHub](https://github.com/scarpex)
+
+## License
+
+This project is licensed under the GNU GPL v3 License - see the  [LICENSE.md](https://github.com/jesusrp98/spacex-go/blob/master/LICENSE.md)  file for details.
+
+
