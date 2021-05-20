@@ -19,6 +19,8 @@ This project has been built in [Dart](https://dart.dev/) using the [Flutter](htt
 - Simple documentation of working hours
 - List of weekly working hours
 - Summary of weekly earnings
+- iOS support
+- Light mode
 
 ## Planned features
 
@@ -26,6 +28,8 @@ This project has been built in [Dart](https://dart.dev/) using the [Flutter](htt
 - Creation of a PDF file with all data in a selected period
 - Overview of all previous entries
 - Storage in the cloud from various providers
+- Android support
+- Dark mode
 
 ## Contributing
 
