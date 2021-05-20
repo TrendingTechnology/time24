@@ -1,6 +1,3 @@
-[home]: screenshots/home.png "Home"
-[settings]: screenshots/settings.png "Settings"
-
 ## About the project!
 
 The purpose of this project is to simplify the documentation of working hours and at the same time to find ways to improve working hours. 
@@ -13,6 +10,9 @@ This project has been built in [Dart](https://dart.dev/) using the [Flutter](htt
 	 ![home]
 	 ![settings]
 </p>
+
+[home]: screenshots/home.png "Home"
+[settings]: screenshots/settings.png "Settings"
 
 ## Features
 
@@ -50,6 +50,6 @@ There you go.
 
 ## License
 
-This project is licensed under the GNU GPL v3 License - see the  [LICENSE.md](https://github.com/jesusrp98/spacex-go/blob/master/LICENSE.md)  file for details.
+This project is licensed under the GNU GPL v3 License - see the  [LICENSE.md](https://github.com/simuldev/time24/blob/dev/LICENSE.md)  file for details.
 
 
