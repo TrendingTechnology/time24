@@ -8,7 +8,6 @@ part of 'time_history.dart';
 
 TimeStampHistory _$TimeStampHistoryFromJson(Map<String, dynamic> json) {
   return TimeStampHistory(
-    DateTime.parse(json['timestamp'] as String),
     yearHistory: (json['yearHistory'] as Map<String, dynamic>?)?.map(
       (k, e) => MapEntry(
           int.parse(k), AnnualHistory.fromJson(e as Map<String, dynamic>)),
@@ -18,7 +17,6 @@ TimeStampHistory _$TimeStampHistoryFromJson(Map<String, dynamic> json) {
 
 Map<String, dynamic> _$TimeStampHistoryToJson(TimeStampHistory instance) =>
     <String, dynamic>{
-      'timestamp': instance.timestamp.toIso8601String(),
       'yearHistory':
           instance.yearHistory.map((k, e) => MapEntry(k.toString(), e)),
     };

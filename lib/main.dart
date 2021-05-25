@@ -54,6 +54,7 @@ class _AppState extends State<App> {
         return supportedLocales.first;
       },
       theme: AppThemes.lightTheme,
+      darkTheme: AppThemes.darkTheme,
       home: Time24(),
     );
   }

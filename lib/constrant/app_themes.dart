@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class AppThemes {
@@ -69,6 +70,67 @@ class AppThemes {
       ),
       actionsIconTheme: IconThemeData(
         size: 25,
+      ),
+    ),
+  );
+
+  static final ThemeData darkTheme = ThemeData(
+    primaryColor: primaryColor,
+    brightness: Brightness.dark,
+    fontFamily: roboto,
+    textTheme: _getTextTheme(darkTextColor, darkSecondaryTextColor),
+    scaffoldBackgroundColor: black,
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ButtonStyle(
+        foregroundColor: MaterialStateProperty.resolveWith(
+          (states) => white,
+        ),
+        backgroundColor: MaterialStateProperty.resolveWith(
+          (states) => primaryColor,
+        ),
+      ),
+    ),
+    textButtonTheme: TextButtonThemeData(
+      style: ButtonStyle(
+        foregroundColor: MaterialStateProperty.resolveWith(
+          (states) => primaryColor,
+        ),
+        textStyle: MaterialStateProperty.resolveWith(
+          (states) => TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+    ),
+    bottomNavigationBarTheme: BottomNavigationBarThemeData(
+      selectedItemColor: primaryColor,
+      backgroundColor: richBlack,
+    ),
+    appBarTheme: AppBarTheme(
+      backgroundColor: richBlack,
+      elevation: 0,
+      iconTheme: IconThemeData(
+        color: darkTextColor,
+        size: 25,
+      ),
+      textTheme: TextTheme(
+        headline6: TextStyle(
+          fontSize: 18,
+          color: darkTextColor,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      actionsIconTheme: IconThemeData(
+        size: 25,
+      ),
+    ),
+    cupertinoOverrideTheme: CupertinoThemeData(
+      brightness: Brightness.dark,
+      textTheme: CupertinoTextThemeData(
+        pickerTextStyle: TextStyle(
+          color: darkTextColor,
+        ),
       ),
     ),
   );

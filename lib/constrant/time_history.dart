@@ -4,11 +4,9 @@ part 'time_history.g.dart';
 
 @JsonSerializable()
 class TimeStampHistory {
-  DateTime timestamp;
   Map<int, AnnualHistory> yearHistory;
 
-  TimeStampHistory(
-    this.timestamp, {
+  TimeStampHistory({
     Map<int, AnnualHistory>? yearHistory,
   }) : yearHistory = yearHistory ?? <int, AnnualHistory>{};
 

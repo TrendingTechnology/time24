@@ -88,6 +88,10 @@ class _AddStampTimeState extends State<AddStampTime> {
   @override
   Widget build(BuildContext context) {
     final double bottom = MediaQuery.of(context).viewInsets.bottom + 20;
+
+    var brightness = MediaQuery.of(context).platformBrightness;
+    bool darkModeOn = brightness == Brightness.dark;
+
     if (pageHead == null)
       pageHead = AppLocalizations.of(context)!.addStampTimeDefaultTitle;
 
@@ -132,7 +136,7 @@ class _AddStampTimeState extends State<AddStampTime> {
                     var content = await history.getContentAsMap;
                     TimeStampHistory tsh;
                     if (content.isEmpty) {
-                      tsh = new TimeStampHistory(DateTime.now());
+                      tsh = new TimeStampHistory();
                     } else {
                       tsh = TimeStampHistory.fromJson(content);
                     }
@@ -445,7 +449,9 @@ class _AddStampTimeState extends State<AddStampTime> {
                     cursorColor: AppThemes.primaryColor,
                     decoration: InputDecoration(
                       contentPadding: const EdgeInsets.all(10),
-                      fillColor: Colors.grey.shade200,
+                      fillColor: darkModeOn
+                          ? AppThemes.richBlack
+                          : Colors.grey.shade300,
                       filled: true,
                       border: UnderlineInputBorder(
                         borderRadius: BorderRadius.circular(5),
@@ -468,11 +474,16 @@ class _AddStampTimeState extends State<AddStampTime> {
     Function(DateTime time) function,
     CupertinoDatePickerMode mode,
   ) {
+    var brightness = MediaQuery.of(context).platformBrightness;
+    bool darkModeOn = brightness == Brightness.dark;
+
     showCupertinoModalPopup(
       context: context,
       builder: (_) => Container(
         height: 500,
-        color: Color.fromARGB(255, 255, 255, 255),
+        color: darkModeOn
+            ? AppThemes.richBlack
+            : Color.fromARGB(255, 255, 255, 255),
         child: Column(
           children: [
             Container(

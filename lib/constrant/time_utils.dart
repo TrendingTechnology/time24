@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:time24/constrant/app_themes.dart';
 
 /// Calculates number of weeks for a given year as per https://en.wikipedia.org/wiki/ISO_week_date#Weeks_per_year
 int numOfWeeks(int year) {
@@ -48,11 +49,15 @@ _showDatePickerIOS(
   CupertinoDatePickerMode mode,
   DateTime currentDate,
 ) {
+  var brightness = MediaQuery.of(context).platformBrightness;
+  bool darkModeOn = brightness == Brightness.dark;
+
   showCupertinoModalPopup(
     context: context,
     builder: (_) => Container(
       height: 500,
-      color: Color.fromARGB(255, 255, 255, 255),
+      color:
+          darkModeOn ? AppThemes.richBlack : Color.fromARGB(255, 255, 255, 255),
       child: Column(
         children: [
           Container(
@@ -80,12 +85,15 @@ Column buildTimeField(
   Function(DateTime time) beginFunc,
   Function(DateTime time) endFunc,
 ) {
+  var brightness = MediaQuery.of(context).platformBrightness;
+  bool darkModeOn = brightness == Brightness.dark;
+
   return Column(
     children: [
       Container(
         padding: const EdgeInsets.fromLTRB(12, 10, 12, 0),
         decoration: BoxDecoration(
-          color: Colors.grey.shade200,
+          color: darkModeOn ? AppThemes.richBlack : Colors.grey.shade300,
           borderRadius: BorderRadius.only(
             topLeft: Radius.elliptical(8, 8),
             topRight: Radius.elliptical(8, 8),
@@ -108,7 +116,8 @@ Column buildTimeField(
               child: Container(
                 padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
+                  color:
+                      darkModeOn ? AppThemes.richBlack : Colors.grey.shade300,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -126,14 +135,14 @@ Column buildTimeField(
       Container(
         padding: const EdgeInsets.fromLTRB(12, 0, 0, 0),
         decoration: BoxDecoration(
-          color: Colors.grey.shade200,
+          color: darkModeOn ? AppThemes.richBlack : Colors.grey.shade300,
         ),
         child: Divider(),
       ),
       Container(
         padding: const EdgeInsets.fromLTRB(12, 0, 12, 10),
         decoration: BoxDecoration(
-          color: Colors.grey.shade200,
+          color: darkModeOn ? AppThemes.richBlack : Colors.grey.shade300,
           borderRadius: BorderRadius.only(
             bottomLeft: Radius.elliptical(8, 8),
             bottomRight: Radius.elliptical(8, 8),
@@ -156,7 +165,8 @@ Column buildTimeField(
               child: Container(
                 padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
+                  color:
+                      darkModeOn ? AppThemes.richBlack : Colors.grey.shade300,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -183,6 +193,9 @@ Column buildDeletableTimeField(
     Function(DateTime time) beginFunc,
     Function(DateTime time) endFunc,
     Function()? deleteFunc) {
+  var brightness = MediaQuery.of(context).platformBrightness;
+  bool darkModeOn = brightness == Brightness.dark;
+
   return Column(
     children: [
       Row(
@@ -205,7 +218,7 @@ Column buildDeletableTimeField(
       Container(
         padding: const EdgeInsets.fromLTRB(12, 10, 12, 0),
         decoration: BoxDecoration(
-          color: Colors.grey.shade200,
+          color: darkModeOn ? AppThemes.richBlack : Colors.grey.shade300,
           borderRadius: BorderRadius.only(
             topLeft: Radius.elliptical(8, 8),
             topRight: Radius.elliptical(8, 8),
@@ -228,13 +241,13 @@ Column buildDeletableTimeField(
               child: Container(
                 padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
+                  color: darkModeOn ? AppThemes.black : Colors.grey.shade300,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   DateFormat.Hm().format(begin),
                   style: TextStyle(
-                    color: Colors.black,
+                    color: darkModeOn ? Colors.white : Colors.black,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -246,14 +259,14 @@ Column buildDeletableTimeField(
       Container(
         padding: const EdgeInsets.fromLTRB(12, 0, 0, 0),
         decoration: BoxDecoration(
-          color: Colors.grey.shade200,
+          color: darkModeOn ? AppThemes.richBlack : Colors.grey.shade300,
         ),
         child: Divider(),
       ),
       Container(
         padding: const EdgeInsets.fromLTRB(12, 0, 12, 10),
         decoration: BoxDecoration(
-          color: Colors.grey.shade200,
+          color: darkModeOn ? AppThemes.richBlack : Colors.grey.shade300,
           borderRadius: BorderRadius.only(
             bottomLeft: Radius.elliptical(8, 8),
             bottomRight: Radius.elliptical(8, 8),
@@ -276,13 +289,13 @@ Column buildDeletableTimeField(
               child: Container(
                 padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
+                  color: darkModeOn ? AppThemes.black : Colors.grey.shade300,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   DateFormat.Hm().format(end),
                   style: TextStyle(
-                    color: Colors.black,
+                    color: darkModeOn ? Colors.white : Colors.black,
                     fontWeight: FontWeight.w500,
                   ),
                 ),

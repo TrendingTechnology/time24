@@ -19,9 +19,24 @@ The working hours are saved in a JSON file and at a later date it can be read ou
 This project has been built in [Dart](https://dart.dev/) using the [Flutter](https://flutter.io/) framework, which allows to build an app for mobile, desktop & web, from a single codebase.
 
 <p align="center">
-  <img src="https://github.com/simuldev/time24/blob/dev/screenshots/home.png" width="256" hspace="4">
-  <img src="https://github.com/simuldev/time24/blob/dev/screenshots/add_time_stamp.png" width="256" hspace="4">
-  <img src="https://github.com/simuldev/time24/blob/dev/screenshots/settings.png" width="256" hspace="4">
+  <details>
+    <summary>Dark Mode</summary>
+      <img src="https://github.com/simuldev/time24/blob/dev/screenshots/home_dark.png" width="256" hspace="4">
+      <img src="https://github.com/simuldev/time24/blob/dev/screenshots/settings_dark.png" width="256" hspace="4">
+      <img src="https://github.com/simuldev/time24/blob/dev/screenshots/add_timestamp_dark.png" width="256" hspace="4">
+      <img src="https://github.com/simuldev/time24/blob/dev/screenshots/edit_timestamp_dark.png" width="256" hspace="4">
+      <img src="https://github.com/simuldev/time24/blob/dev/screenshots/required_weeks_dark.png" width="256" hspace="4">
+      <img src="https://github.com/simuldev/time24/blob/dev/screenshots/hourly_wages_dark.png" width="256" hspace="4">
+  </details>
+    <details>
+    <summary>Light Mode</summary>
+      <img src="https://github.com/simuldev/time24/blob/dev/screenshots/home_light.png" width="256" hspace="4">
+      <img src="https://github.com/simuldev/time24/blob/dev/screenshots/settings_light.png" width="256" hspace="4">
+      <img src="https://github.com/simuldev/time24/blob/dev/screenshots/add_timestamp_light.png" width="256" hspace="4">
+      <img src="https://github.com/simuldev/time24/blob/dev/screenshots/edit_timestamp_light.png" width="256" hspace="4">
+      <img src="https://github.com/simuldev/time24/blob/dev/screenshots/required_weeks_light.png" width="256" hspace="4">
+      <img src="https://github.com/simuldev/time24/blob/dev/screenshots/hourly_wages_light.png" width="256" hspace="4">
+  </details>
 </p>
 
 ## Features

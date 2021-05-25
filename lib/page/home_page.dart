@@ -1,3 +1,4 @@
+import 'package:fading_edge_scrollview/fading_edge_scrollview.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -11,6 +12,7 @@ import 'package:time24/constrant/time_history.dart';
 import 'package:time24/constrant/time_utils.dart';
 import 'package:time24/page/add_stamp_time.dart';
 import 'package:time24/page/edit_stamp_time.dart';
+import 'dart:math' as math;
 
 class HomePage extends StatefulWidget {
   HomePage({Key? key}) : super(key: key);
@@ -129,14 +131,117 @@ class _HomePageState extends State<HomePage> {
           FutureBuilder(
             future: historyJson.getContentAsMap,
             builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.done) {
-                final content = snapshot.data as Map<String, dynamic>;
-                TimeStampHistory history = TimeStampHistory.fromJson(content);
-                AnnualHistory annual = history.yearHistory[today.year]!;
-                WeekHistory week = annual.weekHistory[weekNumber(today)]!;
+              if (snapshot.connectionState != ConnectionState.done) {
+                return Center(
+                  child: CircularProgressIndicator(
+                    backgroundColor: AppThemes.primaryColor,
+                  ),
+                );
+              }
 
-                return ListView.builder(
+              if (!snapshot.hasData) {
+                return Container(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        String.fromCharCode(0x1F629),
+                        style: TextStyle(
+                          fontSize: 50,
+                        ),
+                      ),
+                      Center(
+                        child: Text(
+                          AppLocalizations.of(context)!.homeViewStampTimeError,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 1,
+                            color: Colors.red.shade700,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }
+
+              final content = snapshot.data as Map<String, dynamic>;
+              if (content.isEmpty) {
+                return Container(
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Transform.rotate(
+                              angle: 270 * math.pi / 180,
+                              child: Text(
+                                String.fromCharCode(0x1F389),
+                                style: TextStyle(
+                                  fontSize: 30,
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: 5),
+                            Text(
+                              AppLocalizations.of(context)!
+                                  .homeViewStampTimeEmpty1,
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: "Roboto",
+                                letterSpacing: 2.5,
+                              ),
+                            ),
+                            SizedBox(width: 5),
+                            Text(
+                              String.fromCharCode(0x1F389),
+                              style: TextStyle(
+                                fontSize: 30,
+                              ),
+                            ),
+                          ],
+                        ),
+                        RichText(
+                          text: TextSpan(
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                              letterSpacing: 1,
+                            ),
+                            children: [
+                              TextSpan(
+                                text: AppLocalizations.of(context)!
+                                    .homeViewStampTimeEmpty2,
+                              ),
+                              WidgetSpan(
+                                alignment: PlaceholderAlignment.middle,
+                                child: Icon(Icons.add_box_rounded),
+                              ),
+                              TextSpan(
+                                text: AppLocalizations.of(context)!
+                                    .homeViewStampTimeEmpty3,
+                              ),
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                );
+              }
+
+              TimeStampHistory history = TimeStampHistory.fromJson(content);
+              AnnualHistory annual = history.yearHistory[today.year]!;
+              WeekHistory week = annual.weekHistory[weekNumber(today)]!;
+
+              return FadingEdgeScrollView.fromScrollView(
+                child: ListView.builder(
                   shrinkWrap: true,
+                  controller: ScrollController(),
                   padding: const EdgeInsets.symmetric(vertical: 5),
                   itemCount: week.dailyHistory.length,
                   itemBuilder: (context, index) {
@@ -161,7 +266,7 @@ class _HomePageState extends State<HomePage> {
                             ),
                             child: Divider(
                               height: 1,
-                              //color: Colors.grey.shade300,
+                              // color: Colors.grey.shade200,
                             ),
                           ),
                         Dismissible(
@@ -306,7 +411,17 @@ class _HomePageState extends State<HomePage> {
                           movementDuration: Duration(milliseconds: 500),
                           confirmDismiss: (direction) {
                             if (direction == DismissDirection.endToStart) {
-                              // ToDo: remove it
+                              week.dailyHistory.remove(key);
+
+                              annual.weekHistory
+                                  .update(weekNumber(today), (value) => week);
+                              history.yearHistory
+                                  .update(today.year, (value) => annual);
+                              historyJson.writeAll(history.toJson());
+
+                              setState(() {
+                                // ToDo: update the complete state right
+                              });
 
                               return Future.value(true);
                             }
@@ -328,10 +443,8 @@ class _HomePageState extends State<HomePage> {
                       ],
                     );
                   },
-                );
-              }
-
-              return Container();
+                ),
+              );
             },
           ),
         ],
@@ -346,6 +459,9 @@ class _HomePageState extends State<HomePage> {
 
     var previousEarnings =
         NumberFormat.simpleCurrency().format(hourlyWages * trackedHours);
+
+    var brightness = MediaQuery.of(context).platformBrightness;
+    bool darkModeOn = brightness == Brightness.dark;
 
     String? motivationMessage;
     String? emoji;
@@ -416,7 +532,7 @@ class _HomePageState extends State<HomePage> {
               height: 20,
               width: width,
               decoration: BoxDecoration(
-                color: Colors.grey.shade300,
+                color: darkModeOn ? AppThemes.richBlack : Colors.grey.shade300,
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
@@ -428,7 +544,6 @@ class _HomePageState extends State<HomePage> {
               height: 20,
               width: width * (trackedHours / requiredHoursPerWeek),
               decoration: BoxDecoration(
-                color: Colors.blue.shade300,
                 borderRadius: BorderRadius.circular(10),
                 boxShadow: [
                   BoxShadow(
@@ -504,20 +619,25 @@ class _HomePageState extends State<HomePage> {
     num value,
     String text,
   ) {
+    var brightness = MediaQuery.of(context).platformBrightness;
+    bool darkModeOn = brightness == Brightness.dark;
+
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        height: 110,
         decoration: BoxDecoration(
-          color: Colors.grey.shade300,
+          color: darkModeOn ? AppThemes.richBlack : Colors.grey.shade300,
           borderRadius: BorderRadius.circular(5),
           boxShadow: [
             BoxShadow(
               blurRadius: 20,
-              color: Colors.grey.shade300,
+              color: darkModeOn ? AppThemes.richBlack : Colors.grey.shade300,
             )
           ],
         ),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
               value.toStringAsFixed(2),

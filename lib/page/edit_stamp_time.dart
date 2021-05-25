@@ -55,6 +55,8 @@ class _EditStampTimeState extends State<EditStampTime> {
   @override
   Widget build(BuildContext context) {
     final double bottom = MediaQuery.of(context).viewInsets.bottom + 20;
+    var brightness = MediaQuery.of(context).platformBrightness;
+    bool darkModeOn = brightness == Brightness.dark;
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -198,7 +200,9 @@ class _EditStampTimeState extends State<EditStampTime> {
                     cursorColor: AppThemes.primaryColor,
                     decoration: InputDecoration(
                       contentPadding: const EdgeInsets.all(10),
-                      fillColor: Colors.grey.shade200,
+                      fillColor: darkModeOn
+                          ? AppThemes.richBlack
+                          : Colors.grey.shade300,
                       filled: true,
                       border: UnderlineInputBorder(
                         borderRadius: BorderRadius.circular(5),
