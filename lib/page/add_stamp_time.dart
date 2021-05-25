@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sprintf/sprintf.dart';
+import 'package:time24/constrant/app_themes.dart';
 
 import 'package:time24/constrant/time_history.dart';
 import 'package:time24/constrant/json_file.dart';
 import 'package:time24/constrant/time_utils.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:time24/page/edit_stamp_time.dart';
 
 class AddStampTime extends StatefulWidget {
   AddStampTime({Key? key}) : super(key: key);
@@ -23,6 +25,7 @@ class _AddStampTimeState extends State<AddStampTime> {
   TextEditingController notesController = new TextEditingController(text: "");
   JsonFile history = new JsonFile("history");
 
+  final DateTime zero = DateTime.parse("0000-00-00 00:00:00");
   final String dayZero = "0000-00-00 00:00:00";
   DateTime currentDate = DateTime.now();
   String? pageHead;
@@ -72,10 +75,6 @@ class _AddStampTimeState extends State<AddStampTime> {
         }
       }
 
-      if (breaks.isEmpty) {
-        breaks.add(new TimeStamp(null, null));
-      }
-
       if (preferences!.containsKey("notes")) {
         notesController.text = preferences!.getString("notes")!;
       }
@@ -94,214 +93,191 @@ class _AddStampTimeState extends State<AddStampTime> {
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      body: SafeArea(
-        minimum: const EdgeInsets.only(left: 12, right: 12),
-        child: SingleChildScrollView(
-          controller: ScrollController(),
-          reverse: true,
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // Closes the current page and goes back to the main page
-                  GestureDetector(
-                    child: Icon(Icons.chevron_left_rounded, size: 30),
-                    onTap: () => Navigator.pop(context),
-                  ),
-                  // Saves the data from the page into the json file
-                  TextButton(
-                    onPressed: canSave
-                        ? () async {
-                            print("jeloo");
-                            if (workTime.begin != null)
-                              workTime.begin =
-                                  getTimeToDate(currentDate, workTime.begin!);
-                            if (workTime.end != null)
-                              workTime.end =
-                                  getTimeToDate(currentDate, workTime.end!);
+      appBar: AppBar(
+        leading: IconButton(
+          onPressed: () => Navigator.pop(context),
+          icon: Icon(
+            Icons.chevron_left_rounded,
+            size: 30,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: canSave
+                ? () async {
+                    print("jeloo");
+                    if (workTime.begin != null)
+                      workTime.begin =
+                          getTimeToDate(currentDate, workTime.begin!);
+                    if (workTime.end != null)
+                      workTime.end = getTimeToDate(currentDate, workTime.end!);
 
-                            if (breaks.isNotEmpty)
-                              for (var timestamp in breaks) {
-                                if (timestamp.begin != null &&
-                                    timestamp.end != null) {
-                                  timestamp.begin = getTimeToDate(
-                                      currentDate, timestamp.begin!);
-                                  timestamp.end = getTimeToDate(
-                                      currentDate, timestamp.end!);
-                                }
-                              }
+                    if (breaks.isNotEmpty)
+                      for (var timestamp in breaks) {
+                        if (timestamp.begin != null && timestamp.end != null) {
+                          timestamp.begin =
+                              getTimeToDate(currentDate, timestamp.begin!);
+                          timestamp.end =
+                              getTimeToDate(currentDate, timestamp.end!);
+                        }
+                      }
 
-                            DailyTimeStamp timestamp = new DailyTimeStamp(
-                              currentDate,
-                              notesController.text,
-                              workTime,
-                              breakTime: breaks,
-                            );
+                    DailyTimeStamp timestamp = new DailyTimeStamp(
+                      currentDate,
+                      notesController.text,
+                      workTime,
+                      breakTime: breaks,
+                    );
 
-                            var content = await history.getContentAsMap;
-                            TimeStampHistory tsh;
-                            if (content.isEmpty) {
-                              tsh = new TimeStampHistory(DateTime.now());
-                            } else {
-                              tsh = TimeStampHistory.fromJson(content);
-                            }
+                    var content = await history.getContentAsMap;
+                    TimeStampHistory tsh;
+                    if (content.isEmpty) {
+                      tsh = new TimeStampHistory(DateTime.now());
+                    } else {
+                      tsh = TimeStampHistory.fromJson(content);
+                    }
 
-                            int year = currentDate.year;
-                            int weekNum = weekNumber(currentDate);
-                            int weekday = currentDate.weekday;
-                            if (tsh.yearHistory.containsKey(year)) {
-                              var ath = tsh.yearHistory[year]!;
-                              print("Year $year Found!");
+                    int year = currentDate.year;
+                    int weekNum = weekNumber(currentDate);
+                    int weekday = currentDate.weekday;
+                    if (tsh.yearHistory.containsKey(year)) {
+                      var ath = tsh.yearHistory[year]!;
+                      print("Year $year Found!");
 
-                              var week;
-                              if (ath.weekHistory.containsKey(weekNum)) {
-                                week = ath.weekHistory[weekNum]!;
-                              } else {
-                                week = new WeekHistory(weekNum);
-                              }
+                      var week;
+                      if (ath.weekHistory.containsKey(weekNum)) {
+                        week = ath.weekHistory[weekNum]!;
+                      } else {
+                        week = new WeekHistory(weekNum);
+                      }
 
-                              if (week.dailyHistory.containsKey(weekday)) {
-                                showCupertinoModalPopup(
-                                  context: context,
-                                  builder: (BuildContext context) =>
-                                      CupertinoActionSheet(
-                                    title: Text(
-                                        AppLocalizations.of(context)!
-                                            .addStampTimeDuplicationError,
-                                        style: TextStyle(color: Colors.red)),
-                                    message: RichText(
-                                      text: TextSpan(
-                                        style: TextStyle(
-                                          color: Colors.grey.shade500,
-                                        ),
-                                        children: [
-                                          TextSpan(
-                                            text: AppLocalizations.of(context)!
-                                                .addStampTimeDuplicationErrorMessage1,
-                                          ),
-                                          TextSpan(
-                                            text: DateFormat.MMMMEEEEd()
-                                                .format(currentDate),
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          TextSpan(
-                                            text: AppLocalizations.of(context)!
-                                                .addStampTimeDuplicationErrorMessage2,
-                                          )
-                                        ],
-                                      ),
-                                    ),
-                                    actions: [
-                                      CupertinoActionSheetAction(
-                                        onPressed: () {
-                                          print("Overwrite it");
-                                        },
-                                        child: Text(
-                                          AppLocalizations.of(context)!
-                                              .addStampTimeDuplicationOverwrite,
-                                        ),
-                                      ),
-                                    ],
-                                    cancelButton: CupertinoActionSheetAction(
-                                      child: Text(
-                                        AppLocalizations.of(context)!
-                                            .addStampTimeDuplicationClose,
-                                      ),
-                                      isDefaultAction: true,
-                                      onPressed: () => Navigator.pop(context),
+                      if (week.dailyHistory.containsKey(weekday)) {
+                        showCupertinoModalPopup(
+                          context: context,
+                          builder: (BuildContext context) =>
+                              CupertinoActionSheet(
+                            title: Text(
+                                AppLocalizations.of(context)!
+                                    .addStampTimeDuplicationError,
+                                style: TextStyle(color: Colors.red)),
+                            message: RichText(
+                              text: TextSpan(
+                                style: TextStyle(
+                                  color: Colors.grey.shade500,
+                                ),
+                                children: [
+                                  TextSpan(
+                                    text: AppLocalizations.of(context)!
+                                        .addStampTimeDuplicationErrorMessage1,
+                                  ),
+                                  TextSpan(
+                                    text: DateFormat.MMMMEEEEd()
+                                        .format(currentDate),
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                );
-                              } else {
-                                week.dailyHistory
-                                    .putIfAbsent(weekday, () => timestamp);
-                                ath.weekHistory[weekNum] = week;
-                                tsh.yearHistory.update(year, (value) => ath);
-                                history.writeAll(tsh.toJson());
-                                print("Updated Year $year");
+                                  TextSpan(
+                                    text: AppLocalizations.of(context)!
+                                        .addStampTimeDuplicationErrorMessage2,
+                                  )
+                                ],
+                              ),
+                            ),
+                            actions: [
+                              CupertinoActionSheetAction(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => EditStampTime(
+                                        date: currentDate,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                child: Text(
+                                  AppLocalizations.of(context)!
+                                      .addStampTimeDuplicationOverwrite,
+                                ),
+                              ),
+                            ],
+                            cancelButton: CupertinoActionSheetAction(
+                              child: Text(
+                                AppLocalizations.of(context)!
+                                    .addStampTimeDuplicationClose,
+                              ),
+                              isDefaultAction: true,
+                              onPressed: () => Navigator.pop(context),
+                            ),
+                          ),
+                        );
+                      } else {
+                        week.dailyHistory.putIfAbsent(weekday, () => timestamp);
+                        ath.weekHistory[weekNum] = week;
+                        tsh.yearHistory.update(year, (value) => ath);
+                        history.writeAll(tsh.toJson());
+                        print("Updated Year $year");
 
-                                preferences!.clear();
-                              }
-                            } else {
-                              print("Year Not Found!");
-                              WeekHistory weekHistory =
-                                  new WeekHistory(weekNum);
-                              weekHistory.dailyHistory
-                                  .putIfAbsent(weekday, () => timestamp);
-                              var ath = new AnnualHistory(year);
-                              ath.weekHistory
-                                  .putIfAbsent(weekNum, () => weekHistory);
-                              tsh.yearHistory.putIfAbsent(year, () => ath);
-                              history.writeAll(tsh.toJson());
-                              print("New Year $year Created!");
+                        preferences!.clear();
+                      }
+                    } else {
+                      print("Year Not Found!");
+                      WeekHistory weekHistory = new WeekHistory(weekNum);
+                      weekHistory.dailyHistory
+                          .putIfAbsent(weekday, () => timestamp);
+                      var ath = new AnnualHistory(year);
+                      ath.weekHistory.putIfAbsent(weekNum, () => weekHistory);
+                      tsh.yearHistory.putIfAbsent(year, () => ath);
+                      history.writeAll(tsh.toJson());
+                      print("New Year $year Created!");
 
-                              preferences!.clear();
-                            }
-                          }
-                        : null,
-                    child: Text(
-                      AppLocalizations.of(context)!.basicSaveText,
-                      style: TextStyle(fontSize: 15),
-                    ),
-                    style: ButtonStyle(
-                      foregroundColor: MaterialStateColor.resolveWith(
-                          (states) => canSave ? Colors.orange : Colors.grey),
-                      overlayColor: MaterialStateColor.resolveWith(
-                          (states) => Colors.orange.shade50),
-                    ),
-                  ),
-                ],
-              ),
-              Padding(
-                padding: EdgeInsets.only(left: 10, bottom: bottom),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Information field about the selected date
-                    Text(
-                      pageHead!,
-                      style: TextStyle(
-                        fontSize: 36,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: "Roboto",
-                        letterSpacing: -2.5,
+                      preferences!.clear();
+                    }
+                  }
+                : null,
+            child: Text(
+              AppLocalizations.of(context)!.basicSaveText,
+            ),
+          )
+        ],
+      ),
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).requestFocus(new FocusNode()),
+        child: SafeArea(
+          minimum: const EdgeInsets.only(left: 12, right: 12),
+          child: SingleChildScrollView(
+            controller: ScrollController(),
+            reverse: true,
+            child: Padding(
+              padding: EdgeInsets.only(left: 10, bottom: bottom),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: 15),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              pageHead!,
+                              style: Theme.of(context).textTheme.headline1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Text(
+                              pageSubHead!,
+                              style: Theme.of(context).textTheme.bodyText1,
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    // IconButton(
-                    //   alignment: Alignment.topLeft,
-                    //   splashRadius: 1,
-                    //   icon: Icon(
-                    //     Icons.info_outline_rounded,
-                    //     size: 20,
-                    //   ),
-                    //   onPressed: () {},
-                    //   tooltip:
-                    //       "The app doesn't lose any data you entered here before.",
-                    // ),
-                    // Information field with the selected date
-                    Text(
-                      pageSubHead!,
-                      style: TextStyle(
-                        fontSize: 15,
-                        color: Colors.grey.shade800,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Text(
-                      AppLocalizations.of(context)!.addStampTimeDescription,
-                      style: TextStyle(
-                        //color: Colors.grey.shade800,
-                        fontSize: 15,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    // Button to change the current date to another day
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: OutlinedButton(
+                      ElevatedButton(
                         onPressed: () {
                           if (isIOS) {
                             _showDatePickerIOS(context, (time) {
@@ -350,282 +326,139 @@ class _AddStampTimeState extends State<AddStampTime> {
                             }, CupertinoDatePickerMode.date);
                           }
                         },
-                        style: ButtonStyle(
-                          foregroundColor: MaterialStateColor.resolveWith(
-                              (states) => Colors.orange),
-                          overlayColor: MaterialStateColor.resolveWith(
-                              (states) => Colors.orange.shade50),
-                        ),
                         child: Text(
                           AppLocalizations.of(context)!.addStampTimeChangeDay,
                         ),
                       ),
-                    ),
-                    _showTimeField(
+                    ],
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    AppLocalizations.of(context)!.addStampTimeDescription,
+                    style: Theme.of(context).textTheme.bodyText1,
+                  ),
+                  SizedBox(height: 10),
+                  buildDeletableTimeField(
+                    context,
+                    AppLocalizations.of(context)!.addStampTimeWorkTime,
+                    workTime.begin == null ? zero : workTime.begin!,
+                    workTime.end == null ? zero : workTime.end!,
+                    (time) {
+                      setState(() {
+                        workTime.begin = time;
+                        preferences!
+                            .setString("workTimeBegin", time.toString());
+                        if (!canSave &&
+                            workTime.begin != null &&
+                            workTime.end != null) {
+                          canSave = true;
+                        }
+                      });
+                    },
+                    (time) {
+                      setState(() {
+                        workTime.end = time;
+                        preferences!.setString("workTimeEnd", time.toString());
+                        if (!canSave &&
+                            workTime.begin != null &&
+                            workTime.end != null) {
+                          canSave = true;
+                        }
+                      });
+                    },
+                    null,
+                  ),
+                  SizedBox(height: 10),
+                  for (int i = 0; i < breaks.length; i++)
+                    buildDeletableTimeField(
                       context,
-                      AppLocalizations.of(context)!.addStampTimeWorkTime,
-                      AppLocalizations.of(context)!
-                          .addStampTimeWorkTimeDescription,
-                      workTime.begin,
-                      workTime.end,
+                      breaks.length > 1
+                          ? "${AppLocalizations.of(context)!.addStampTimeBreak} #${i + 1}"
+                          : AppLocalizations.of(context)!.addStampTimeBreak,
+                      breaks[i].begin == null ? zero : breaks[i].begin!,
+                      breaks[i].end == null ? zero : breaks[i].end!,
                       (time) {
                         setState(() {
-                          //time = getTimeToDate(currentDate, time);
-                          workTime.begin = time;
+                          breaks[i].begin = time;
                           preferences!
-                              .setString("workTimeBegin", time.toString());
-                          if (!canSave &&
-                              workTime.begin != null &&
-                              workTime.end != null) {
-                            canSave = true;
-                          }
+                              .setString("breakBegin$i", time.toString());
                         });
                       },
                       (time) {
                         setState(() {
-                          //time = getTimeToDate(currentDate, time);
-                          workTime.end = time;
-                          preferences!
-                              .setString("workTimeEnd", time.toString());
-                          if (!canSave &&
-                              workTime.begin != null &&
-                              workTime.end != null) {
-                            canSave = true;
-                          }
+                          breaks[i].end = time;
+                          preferences!.setString("breakEnd$i", time.toString());
                         });
                       },
-                      false,
-                      null,
+                      (breaks.length <= 3)
+                          ? () {
+                              setState(() {
+                                breaks.removeAt(i);
+
+                                for (int i = 0; i < maxBreakCount; i++) {
+                                  preferences!.remove("breakBegin$i");
+                                  preferences!.remove("breakEnd$i");
+                                }
+
+                                for (int i = 0; i < breaks.length; i++) {
+                                  preferences!.setString(
+                                    "breakBegin$i",
+                                    breaks[i].begin.toString(),
+                                  );
+                                  preferences!.setString(
+                                    "breakEnd$i",
+                                    breaks[i].end.toString(),
+                                  );
+                                }
+                              });
+                            }
+                          : null,
                     ),
-                    for (int i = 0; i < breaks.length; i++)
-                      _showTimeField(
-                        context,
-                        breaks.length > 1
-                            ? "${AppLocalizations.of(context)!.addStampTimeBreak} #${i + 1}"
-                            : AppLocalizations.of(context)!.addStampTimeBreaks,
-                        AppLocalizations.of(context)!
-                            .addStampTimeBreakDescription,
-                        breaks[i].begin,
-                        breaks[i].end,
-                        (time) {
-                          setState(() {
-                            //time = getTimeToDate(currentDate, time);
-                            breaks[i].begin = time;
-                            preferences!
-                                .setString("breakBegin$i", time.toString());
-                          });
-                        },
-                        (time) {
-                          setState(() {
-                            //time = getTimeToDate(currentDate, time);
-                            breaks[i].end = time;
-                            preferences!
-                                .setString("breakEnd$i", time.toString());
-                          });
-                        },
-                        i == 0 ? false : true,
-                        i,
-                      ),
-                    if (breaks.length < maxBreakCount)
-                      OutlinedButton(
+                  if (breaks.length < 3)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: ElevatedButton(
                         onPressed: () {
                           setState(() {
-                            breaks.add(new TimeStamp(null, null));
+                            breaks.add(new TimeStamp(zero, zero));
                           });
                         },
                         child: Text(
                           AppLocalizations.of(context)!
                               .addStampTimeAddOneMoreBreak,
-                          style: TextStyle(
-                            color: Colors.orange,
-                          ),
-                        ),
-                        style: ButtonStyle(
-                          overlayColor: MaterialStateColor.resolveWith(
-                            (states) => Colors.amber.shade50,
-                          ),
-                        ),
-                      ),
-                    SizedBox(height: 15),
-                    Text(
-                      AppLocalizations.of(context)!.addStampTimeNotes,
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: "Roboto",
-                        letterSpacing: -1.5,
-                      ),
-                    ),
-                    Text(
-                      AppLocalizations.of(context)!.addStampTimeNotesHintText,
-                      style: TextStyle(
-                        color: Colors.grey.shade700,
-                      ),
-                    ),
-                    SizedBox(height: 5),
-                    TextField(
-                      keyboardType: TextInputType.text,
-                      controller: notesController,
-                      onChanged: (value) {
-                        preferences!.setString("notes", notesController.text);
-                      },
-                      maxLines: 5,
-                      cursorColor: Colors.amber,
-                      decoration: InputDecoration(
-                        contentPadding: const EdgeInsets.all(10),
-                        fillColor: Colors.grey.shade200,
-                        filled: true,
-                        border: UnderlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide: BorderSide.none,
                         ),
                       ),
                     ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  _showTimeField(
-    BuildContext context,
-    String label,
-    String description,
-    DateTime? begin,
-    DateTime? end,
-    Function(DateTime time) beginFunc,
-    Function(DateTime time) endFunc,
-    bool deletable,
-    int? index,
-  ) {
-    final width = MediaQuery.of(context).size.width;
-
-    return Container(
-      padding: const EdgeInsets.only(top: 10, bottom: 10),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              Container(
-                width: width - 250,
-                child: Text(
-                  description,
-                  style: TextStyle(
-                    color: Colors.grey.shade700,
+                  SizedBox(height: 15),
+                  Text(
+                    AppLocalizations.of(context)!.addStampTimeNotes,
+                    style: Theme.of(context).textTheme.headline4,
                   ),
-                  overflow: TextOverflow.visible,
-                ),
-              )
-            ],
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Row(
-                children: [
-                  GestureDetector(
-                    onTap: () => _showDatePickerIOS(
-                      context,
-                      beginFunc,
-                      CupertinoDatePickerMode.time,
-                    ),
-                    child: Container(
-                      padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade300,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        DateFormat.Hm().format(
-                            begin == null ? DateTime.parse(dayZero) : begin),
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
+                  SizedBox(height: 5),
+                  TextField(
+                    keyboardType: TextInputType.text,
+                    controller: notesController,
+                    onChanged: (value) {
+                      preferences!.setString("notes", notesController.text);
+                    },
+                    maxLines: 5,
+                    cursorColor: AppThemes.primaryColor,
+                    decoration: InputDecoration(
+                      contentPadding: const EdgeInsets.all(10),
+                      fillColor: Colors.grey.shade200,
+                      filled: true,
+                      border: UnderlineInputBorder(
+                        borderRadius: BorderRadius.circular(5),
+                        borderSide: BorderSide.none,
                       ),
                     ),
-                  ),
-                  SizedBox(width: 10),
-                  Text(AppLocalizations.of(context)!.basicToText),
-                  SizedBox(width: 10),
-                  GestureDetector(
-                    onTap: () => _showDatePickerIOS(
-                      context,
-                      endFunc,
-                      CupertinoDatePickerMode.time,
-                    ),
-                    child: Container(
-                      padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade300,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        DateFormat.Hm().format(
-                            end == null ? DateTime.parse(dayZero) : end),
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
+                    style: Theme.of(context).textTheme.headline6,
                   ),
                 ],
               ),
-              if (deletable)
-                TextButton(
-                  onPressed: () {
-                    setState(() {
-                      breaks.removeAt(index!);
-
-                      for (int i = 0; i < maxBreakCount; i++) {
-                        preferences!.remove("breakBegin$i");
-                        preferences!.remove("breakEnd$i");
-                      }
-
-                      for (int i = 0; i < breaks.length; i++) {
-                        preferences!.setString(
-                          "breakBegin$i",
-                          breaks[i].begin.toString(),
-                        );
-                        preferences!.setString(
-                          "breakEnd$i",
-                          breaks[i].end.toString(),
-                        );
-                      }
-                    });
-                  },
-                  child: Text(
-                    AppLocalizations.of(context)!.basicRemoveText,
-                    style: TextStyle(
-                      fontSize: 14,
-                    ),
-                  ),
-                  style: ButtonStyle(
-                    foregroundColor: MaterialStateColor.resolveWith(
-                        (states) => Colors.orange),
-                    overlayColor: MaterialStateColor.resolveWith(
-                        (states) => Colors.amber.shade50),
-                  ),
-                ),
-            ],
-          )
-        ],
+            ),
+          ),
+        ),
       ),
     );
   }

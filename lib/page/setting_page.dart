@@ -78,21 +78,12 @@ class _SettingPageState extends State<SettingPage> {
             children: [
               Text(
                 AppLocalizations.of(context)!.settingsViewPageTitle,
-                style: TextStyle(
-                  fontSize: 36,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: "Roboto",
-                  letterSpacing: -2.5,
-                ),
+                style: Theme.of(context).textTheme.headline1,
               ),
               SizedBox(height: 15),
               Text(
                 AppLocalizations.of(context)!.settingsViewWorkInformation,
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: "Roboto",
-                ),
+                style: Theme.of(context).textTheme.headline3,
               ),
               SizedBox(height: 10),
               Row(
@@ -104,19 +95,14 @@ class _SettingPageState extends State<SettingPage> {
                       Text(
                         AppLocalizations.of(context)!
                             .settingsViewRequiredHoursPerWeek,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
+                        style: Theme.of(context).textTheme.headline5,
                       ),
                       Text(
                         sprintf(
                           AppLocalizations.of(context)!.settingsViewHoursSet,
                           [requiredHoursPerWeek],
                         ),
-                        style: TextStyle(
-                          color: Colors.grey.shade700,
-                        ),
+                        style: Theme.of(context).textTheme.bodyText1,
                       ),
                     ],
                   ),
@@ -191,18 +177,13 @@ class _SettingPageState extends State<SettingPage> {
                     children: [
                       Text(
                         AppLocalizations.of(context)!.settingsViewHourlyWages,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
+                        style: Theme.of(context).textTheme.headline5,
                       ),
                       Text(
                         NumberFormat.currency(
                                 locale: Platform.localeName, decimalDigits: 2)
                             .format(loanPerHour),
-                        style: TextStyle(
-                          color: Colors.grey.shade700,
-                        ),
+                        style: Theme.of(context).textTheme.bodyText1,
                       ),
                     ],
                   ),

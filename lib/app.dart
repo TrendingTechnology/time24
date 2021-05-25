@@ -41,8 +41,6 @@ class _Time24State extends State<Time24> {
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
-        selectedItemColor: Colors.orange.shade700,
-        unselectedItemColor: Colors.grey.shade700,
         onTap: _navigationTapped,
         currentIndex: _index,
         items: [

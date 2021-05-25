@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:time24/constrant/app_themes.dart';
 import 'package:time24/constrant/profile_settings.dart';
 import 'package:time24/constrant/json_file.dart';
 
@@ -46,10 +47,7 @@ class _SetHoursPerWeekPageState extends State<SetHoursPerWeekPage> {
                   Icon(Icons.chevron_left_rounded, size: 30),
                   Text(
                     AppLocalizations.of(context)!.basicLeavePageText,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: Theme.of(context).textTheme.headline5,
                   )
                 ],
               ),
@@ -66,34 +64,32 @@ class _SetHoursPerWeekPageState extends State<SetHoursPerWeekPage> {
                     AppLocalizations.of(context)!
                         .requiredHoursPerWeekViewPageTitle,
                     textAlign: TextAlign.justify,
-                    style: TextStyle(
-                      fontSize: 36,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: "Roboto",
-                      letterSpacing: -2.5,
-                    ),
+                    style: Theme.of(context).textTheme.headline1,
                   ),
                   SizedBox(height: 5),
                   Text(
                     AppLocalizations.of(context)!
                         .requiredHoursPerWeekViewDescription,
-                    style: TextStyle(
-                      color: Colors.grey.shade700,
-                      fontSize: 16,
-                    ),
+                    style: Theme.of(context).textTheme.bodyText1,
                   ),
                   SizedBox(height: 25),
                   Container(
                     padding: const EdgeInsets.only(left: 100, right: 100),
                     child: TextField(
+                      decoration: InputDecoration(
+                        hintText: requiredHours.toString(),
+                        focusedBorder: new UnderlineInputBorder(
+                          borderSide: new BorderSide(
+                            color: AppThemes.primaryColor,
+                          ),
+                        ),
+                      ),
                       controller: weeklyWorkTimeController,
                       textAlign: TextAlign.center,
                       keyboardType:
                           TextInputType.numberWithOptions(decimal: true),
                       autofocus: true,
-                      decoration: InputDecoration(
-                        hintText: requiredHours.toString(),
-                      ),
+                      cursorColor: AppThemes.primaryColor,
                     ),
                   )
                 ],

@@ -3,6 +3,7 @@ import 'package:time24/app.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:time24/constrant/app_themes.dart';
 
 void main() {
   runApp(App());
@@ -52,6 +53,7 @@ class _AppState extends State<App> {
         Intl.defaultLocale = supportedLocales.first.toLanguageTag();
         return supportedLocales.first;
       },
+      theme: AppThemes.lightTheme,
       home: Time24(),
     );
   }
