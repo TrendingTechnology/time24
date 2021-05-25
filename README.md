@@ -45,16 +45,15 @@ This project has been built in [Dart](https://dart.dev/) using the [Flutter](htt
 - List of weekly working hours
 - Summary of weekly earnings
 - iOS support
-- Light mode
+- Light & Dark mode
+- Edit working hours
 
 ## Planned features
 
-- Edit working hours
 - Creation of a PDF file with all data in a selected period
 - Overview of all previous entries
 - Storage in the cloud from various providers
 - Android support
-- Dark mode
 
 ## Contributing
 
