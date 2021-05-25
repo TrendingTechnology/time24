@@ -41,6 +41,7 @@ This project has been built in [Dart](https://dart.dev/) using the [Flutter](htt
 
 ## Features
 
+- Supports the English and German language
 - Simple documentation of working hours
 - List of weekly working hours
 - Summary of weekly earnings
