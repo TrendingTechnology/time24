@@ -107,140 +107,184 @@ class _AddStampTimeState extends State<AddStampTime> {
         ),
         actions: [
           TextButton(
-            onPressed: canSave
-                ? () async {
-                    print("jeloo");
-                    if (workTime.begin != null)
-                      workTime.begin =
-                          getTimeToDate(currentDate, workTime.begin!);
-                    if (workTime.end != null)
-                      workTime.end = getTimeToDate(currentDate, workTime.end!);
-
-                    if (breaks.isNotEmpty)
-                      for (var timestamp in breaks) {
-                        if (timestamp.begin != null && timestamp.end != null) {
-                          timestamp.begin =
-                              getTimeToDate(currentDate, timestamp.begin!);
-                          timestamp.end =
-                              getTimeToDate(currentDate, timestamp.end!);
-                        }
-                      }
-
-                    DailyTimeStamp timestamp = new DailyTimeStamp(
-                      currentDate,
-                      notesController.text,
-                      workTime,
-                      breakTime: breaks,
-                    );
-
-                    var content = await history.getContentAsMap;
-                    TimeStampHistory tsh;
-                    if (content.isEmpty) {
-                      tsh = new TimeStampHistory();
-                    } else {
-                      tsh = TimeStampHistory.fromJson(content);
-                    }
-
-                    int year = currentDate.year;
-                    int weekNum = weekNumber(currentDate);
-                    int weekday = currentDate.weekday;
-                    if (tsh.yearHistory.containsKey(year)) {
-                      var ath = tsh.yearHistory[year]!;
-                      print("Year $year Found!");
-
-                      var week;
-                      if (ath.weekHistory.containsKey(weekNum)) {
-                        week = ath.weekHistory[weekNum]!;
-                      } else {
-                        week = new WeekHistory(weekNum);
-                      }
-
-                      if (week.dailyHistory.containsKey(weekday)) {
-                        showCupertinoModalPopup(
-                          context: context,
-                          builder: (BuildContext context) =>
-                              CupertinoActionSheet(
-                            title: Text(
-                                AppLocalizations.of(context)!
-                                    .addStampTimeDuplicationError,
-                                style: TextStyle(color: Colors.red)),
-                            message: RichText(
-                              text: TextSpan(
-                                style: TextStyle(
-                                  color: Colors.grey.shade500,
-                                ),
-                                children: [
-                                  TextSpan(
-                                    text: AppLocalizations.of(context)!
-                                        .addStampTimeDuplicationErrorMessage1,
-                                  ),
-                                  TextSpan(
-                                    text: DateFormat.MMMMEEEEd()
-                                        .format(currentDate),
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  TextSpan(
-                                    text: AppLocalizations.of(context)!
-                                        .addStampTimeDuplicationErrorMessage2,
-                                  )
-                                ],
-                              ),
-                            ),
-                            actions: [
-                              CupertinoActionSheetAction(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => EditStampTime(
-                                        date: currentDate,
-                                      ),
-                                    ),
-                                  );
-                                },
-                                child: Text(
-                                  AppLocalizations.of(context)!
-                                      .addStampTimeDuplicationOverwrite,
-                                ),
-                              ),
-                            ],
-                            cancelButton: CupertinoActionSheetAction(
-                              child: Text(
-                                AppLocalizations.of(context)!
-                                    .addStampTimeDuplicationClose,
-                              ),
-                              isDefaultAction: true,
-                              onPressed: () => Navigator.pop(context),
-                            ),
+            onPressed: () async {
+              if (workTime.begin == null || workTime.end == null) {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return CupertinoAlertDialog(
+                      title: Text(
+                        sprintf(
+                          AppLocalizations.of(context)!
+                              .addStampTimeSaveErrorTitle,
+                          [String.fromCharCode(0x1F605)],
+                        ),
+                      ),
+                      content: Text(
+                        AppLocalizations.of(context)!
+                            .addStampTimeSaveErrorMessage,
+                      ),
+                      actions: [
+                        CupertinoDialogAction(
+                          child: Text(
+                            AppLocalizations.of(context)!.basicOkText,
                           ),
-                        );
-                      } else {
-                        week.dailyHistory.putIfAbsent(weekday, () => timestamp);
-                        ath.weekHistory[weekNum] = week;
-                        tsh.yearHistory.update(year, (value) => ath);
-                        history.writeAll(tsh.toJson());
-                        print("Updated Year $year");
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ],
+                    );
+                  },
+                );
+                return;
+              }
 
-                        preferences!.clear();
-                      }
-                    } else {
-                      print("Year Not Found!");
-                      WeekHistory weekHistory = new WeekHistory(weekNum);
-                      weekHistory.dailyHistory
-                          .putIfAbsent(weekday, () => timestamp);
-                      var ath = new AnnualHistory(year);
-                      ath.weekHistory.putIfAbsent(weekNum, () => weekHistory);
-                      tsh.yearHistory.putIfAbsent(year, () => ath);
-                      history.writeAll(tsh.toJson());
-                      print("New Year $year Created!");
+              workTime.begin = getTimeToDate(currentDate, workTime.begin!);
+              workTime.end = getTimeToDate(currentDate, workTime.end!);
+              workTime.end = correctDateTime(workTime.begin!, workTime.end!);
 
-                      preferences!.clear();
-                    }
+              if (breaks.isNotEmpty)
+                for (var timestamp in breaks) {
+                  if (timestamp.begin != null && timestamp.end != null) {
+                    timestamp.begin =
+                        getTimeToDate(currentDate, timestamp.begin!);
+                    timestamp.end = getTimeToDate(currentDate, timestamp.end!);
                   }
-                : null,
+                }
+
+              DailyTimeStamp timestamp = new DailyTimeStamp(
+                currentDate,
+                notesController.text,
+                workTime,
+                breakTime: breaks,
+              );
+
+              var content = await history.getContentAsMap;
+              TimeStampHistory tsh;
+              if (content.isEmpty) {
+                tsh = new TimeStampHistory();
+              } else {
+                tsh = TimeStampHistory.fromJson(content);
+              }
+
+              int year = currentDate.year;
+              int weekNum = weekNumber(currentDate);
+              int weekday = currentDate.weekday;
+              if (tsh.yearHistory.containsKey(year)) {
+                var ath = tsh.yearHistory[year]!;
+                print("Year $year Found!");
+
+                WeekHistory week;
+                if (ath.weekHistory.containsKey(weekNum)) {
+                  week = ath.weekHistory[weekNum]!;
+                } else {
+                  week = new WeekHistory(weekNum);
+                }
+
+                if (week.dailyHistory.containsKey(weekday)) {
+                  showCupertinoModalPopup(
+                    context: context,
+                    builder: (BuildContext context) => CupertinoActionSheet(
+                      title: Text(
+                          AppLocalizations.of(context)!
+                              .addStampTimeDuplicationError,
+                          style: TextStyle(color: Colors.red)),
+                      message: RichText(
+                        text: TextSpan(
+                          style: TextStyle(
+                            color: Colors.grey.shade500,
+                          ),
+                          children: [
+                            TextSpan(
+                              text: AppLocalizations.of(context)!
+                                  .addStampTimeDuplicationErrorMessage1,
+                            ),
+                            TextSpan(
+                              text: DateFormat.MMMMEEEEd().format(currentDate),
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            TextSpan(
+                              text: AppLocalizations.of(context)!
+                                  .addStampTimeDuplicationErrorMessage2,
+                            )
+                          ],
+                        ),
+                      ),
+                      actions: [
+                        CupertinoActionSheetAction(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => EditStampTime(
+                                  date: currentDate,
+                                ),
+                              ),
+                            );
+                            print("Start editing => ${currentDate.toString()}");
+                          },
+                          child: Text(
+                            AppLocalizations.of(context)!
+                                .addStampTimeDuplicationEdit,
+                          ),
+                        ),
+                        CupertinoActionSheetAction(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            week.dailyHistory
+                                .update(weekday, (value) => timestamp);
+                            ath.weekHistory[weekNum] = week;
+                            tsh.yearHistory.update(year, (value) => ath);
+                            history.writeAll(tsh.toJson());
+                            print("Overwrite => ${currentDate.toString()}");
+                            preferences!.clear();
+
+                            setState(() {
+                              // ToDo: Change day to the current day again
+                              workTime.begin = zero;
+                              workTime.end = zero;
+                              breaks.clear();
+                              notesController.text = "";
+                            });
+                          },
+                          child: Text(
+                            AppLocalizations.of(context)!
+                                .addStampTimeDuplicationOverwrite,
+                          ),
+                        ),
+                      ],
+                      cancelButton: CupertinoActionSheetAction(
+                        child: Text(
+                          AppLocalizations.of(context)!
+                              .addStampTimeDuplicationClose,
+                        ),
+                        isDefaultAction: true,
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ),
+                  );
+                } else {
+                  week.dailyHistory.putIfAbsent(weekday, () => timestamp);
+                  ath.weekHistory[weekNum] = week;
+                  tsh.yearHistory.update(year, (value) => ath);
+                  history.writeAll(tsh.toJson());
+                  print("Created new entry => ${currentDate.toString()}");
+                  preferences!.clear();
+                }
+              } else {
+                print("Year Not Found!");
+                WeekHistory weekHistory = new WeekHistory(weekNum);
+                weekHistory.dailyHistory.putIfAbsent(weekday, () => timestamp);
+                var ath = new AnnualHistory(year);
+                ath.weekHistory.putIfAbsent(weekNum, () => weekHistory);
+                tsh.yearHistory.putIfAbsent(year, () => ath);
+                history.writeAll(tsh.toJson());
+                print("Created new year & entry => ${currentDate.toString()}");
+                preferences!.clear();
+              }
+            },
             child: Text(
               AppLocalizations.of(context)!.basicSaveText,
             ),
@@ -489,6 +533,7 @@ class _AddStampTimeState extends State<AddStampTime> {
             Container(
               height: 400,
               child: CupertinoDatePicker(
+                minimumYear: 2000,
                 mode: mode,
                 initialDateTime: currentDate,
                 onDateTimeChanged: function,

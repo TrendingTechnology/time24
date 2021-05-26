@@ -43,6 +43,15 @@ DateTime getTimeToDate(DateTime current, DateTime time) {
   );
 }
 
+DateTime correctDateTime(DateTime begin, DateTime end) {
+  int difference = end.difference(begin).inMinutes;
+  if (difference.isNegative) {
+    end = end.add(const Duration(days: 1));
+  }
+
+  return end;
+}
+
 _showDatePickerIOS(
   BuildContext context,
   Function(DateTime time) function,
@@ -63,6 +72,7 @@ _showDatePickerIOS(
           Container(
             height: 400,
             child: CupertinoDatePicker(
+              minimumYear: 2000,
               mode: mode,
               initialDateTime: currentDate,
               onDateTimeChanged: function,
@@ -241,7 +251,7 @@ Column buildDeletableTimeField(
               child: Container(
                 padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
                 decoration: BoxDecoration(
-                  color: darkModeOn ? AppThemes.black : Colors.grey.shade300,
+                  color: darkModeOn ? AppThemes.black : Colors.black12,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -289,7 +299,7 @@ Column buildDeletableTimeField(
               child: Container(
                 padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
                 decoration: BoxDecoration(
-                  color: darkModeOn ? AppThemes.black : Colors.grey.shade300,
+                  color: darkModeOn ? AppThemes.black : Colors.black12,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(

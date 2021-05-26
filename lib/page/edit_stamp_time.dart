@@ -85,6 +85,8 @@ class _EditStampTimeState extends State<EditStampTime> {
                 }
               }
 
+              workTime.end = correctDateTime(workTime.begin!, workTime.end!);
+
               TimeStampHistory history = TimeStampHistory.fromJson(
                 await json.getContentAsMap,
               );

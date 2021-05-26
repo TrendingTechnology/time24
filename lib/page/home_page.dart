@@ -21,14 +21,22 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
+// ToDo: Sync the changes
+
 class _HomePageState extends State<HomePage> {
   final today = DateTime.now();
   var week;
+  var previousEarnings;
 
   num requiredHoursPerWeek = 0;
   num trackedHours = 0;
   num trackedHoursFromLastWeek = 0;
   num hourlyWages = 0;
+  num remainingHours = 0;
+  num indicatorValue = 0;
+
+  String progress =
+      NumberFormat.decimalPercentPattern(decimalDigits: 2).format(0.0);
 
   final JsonFile historyJson = new JsonFile("history");
   final JsonFile settingJson = new JsonFile("settings");
@@ -48,40 +56,79 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  String? motivationMessage;
+  String? emoji;
+
   @override
   void initState() {
     super.initState();
-    _loadPreferences();
+    _reload(context);
   }
 
-  _loadPreferences() async {
+  _reload(BuildContext context) async {
     var history = TimeStampHistory.fromJson(await historyJson.getContentAsMap);
     var settings = ProfileSettings.fromJson(await settingJson.getContentAsMap);
 
-    if (history.yearHistory.containsKey(today.year)) {
-      AnnualHistory annual = history.yearHistory[today.year]!;
+    setState(() {
+      if (history.yearHistory.containsKey(today.year)) {
+        AnnualHistory annual = history.yearHistory[today.year]!;
 
-      if (annual.weekHistory.containsKey(weekNumber(today))) {
-        WeekHistory week = annual.weekHistory[weekNumber(today)]!;
+        if (annual.weekHistory.containsKey(weekNumber(today))) {
+          WeekHistory week = annual.weekHistory[weekNumber(today)]!;
 
-        week.dailyHistory.values.forEach((daily) {
-          num x =
-              daily.workTime.end!.difference(daily.workTime.begin!).inMinutes;
-          setState(() {
+          if (trackedHours != 0) trackedHours = 0;
+
+          week.dailyHistory.values.forEach((daily) {
+            num x =
+                daily.workTime.end!.difference(daily.workTime.begin!).inMinutes;
             trackedHours += (x / 60);
           });
-        });
+        }
       }
-    }
 
-    setState(() {
+      if (indicatorValue > 1.1) {
+        motivationMessage =
+            AppLocalizations.of(context)!.homeViewMotivationMessage110;
+        emoji = String.fromCharCode(0x1F92F);
+      } else if (indicatorValue > 1) {
+        motivationMessage =
+            AppLocalizations.of(context)!.homeViewMotivationMessage100;
+        emoji = String.fromCharCode(0x1F973);
+      } else if (indicatorValue > 0.75) {
+        motivationMessage =
+            AppLocalizations.of(context)!.homeViewMotivationMessage75;
+        emoji = String.fromCharCode(0x231B);
+      } else if (indicatorValue > 0.5) {
+        motivationMessage =
+            AppLocalizations.of(context)!.homeViewMotivationMessage50;
+        emoji = String.fromCharCode(0x1F917);
+      } else if (indicatorValue > 0.1) {
+        motivationMessage =
+            AppLocalizations.of(context)!.homeViewMotivationMessage10;
+        emoji = String.fromCharCode(0x1F971);
+      } else {
+        motivationMessage =
+            AppLocalizations.of(context)!.homeViewMotivationMessage0;
+        emoji = String.fromCharCode(0x1F971);
+      }
+
       requiredHoursPerWeek = settings.requiredHoursPerWeek;
       hourlyWages = settings.loanPerHour;
+      remainingHours = requiredHoursPerWeek - trackedHours;
+      indicatorValue = (trackedHours / requiredHoursPerWeek);
+      previousEarnings =
+          NumberFormat.simpleCurrency().format(hourlyWages * trackedHours);
+      progress = NumberFormat.decimalPercentPattern(decimalDigits: 2)
+          .format(indicatorValue);
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    double width = MediaQuery.of(context).size.width - (MIN_PADDING * 2);
+    var brightness = MediaQuery.of(context).platformBrightness;
+    bool darkModeOn = brightness == Brightness.dark;
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Column(
@@ -102,7 +149,132 @@ class _HomePageState extends State<HomePage> {
                   style: Theme.of(context).textTheme.bodyText1,
                 ),
                 SizedBox(height: 15),
-                buildTimeInformation(),
+                Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        buildTimeInformationBox(
+                          context,
+                          trackedHours,
+                          AppLocalizations.of(context)!.homeViewHoursTracked,
+                        ),
+                        SizedBox(width: 15),
+                        (remainingHours.isNegative)
+                            ? buildTimeInformationBox(
+                                context,
+                                remainingHours.abs(),
+                                AppLocalizations.of(context)!.homeViewOvertime)
+                            : buildTimeInformationBox(
+                                context,
+                                remainingHours,
+                                AppLocalizations.of(context)!
+                                    .homeViewRemainingHours),
+                      ],
+                    ),
+                    SizedBox(height: 15),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          AppLocalizations.of(context)!.homeViewWorkProgress,
+                          style: Theme.of(context).textTheme.headline2,
+                        ),
+                        Text(
+                          progress,
+                          style: Theme.of(context).textTheme.bodyText1,
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 8),
+                    Stack(
+                      children: [
+                        Container(
+                          height: 20,
+                          width: width,
+                          decoration: BoxDecoration(
+                            color: darkModeOn
+                                ? AppThemes.richBlack
+                                : Colors.grey.shade300,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        Container(
+                          constraints: BoxConstraints(
+                            minWidth: 0,
+                            maxWidth: width,
+                          ),
+                          height: 20,
+                          width: width * (trackedHours / requiredHoursPerWeek),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            boxShadow: [
+                              BoxShadow(
+                                blurRadius: 8,
+                                color: AppThemes.blue,
+                              )
+                            ],
+                            gradient: LinearGradient(
+                              begin: Alignment.bottomLeft,
+                              end: Alignment.topRight,
+                              colors: [
+                                AppThemes.neonBlue,
+                                AppThemes.primaryColor,
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 15),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: RichText(
+                            overflow: TextOverflow.clip,
+                            text: TextSpan(
+                              style: Theme.of(context).textTheme.headline6,
+                              children: [
+                                TextSpan(
+                                  text: AppLocalizations.of(context)!
+                                      .homeViewMoneyInformationPart1,
+                                ),
+                                TextSpan(
+                                  text: previousEarnings,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                TextSpan(
+                                  text: AppLocalizations.of(context)!
+                                      .homeViewMoneyInformationPart2,
+                                ),
+                                TextSpan(text: motivationMessage),
+                              ],
+                            ),
+                          ),
+                        ),
+                        // SizedBox(width: 10),
+                        // Container(
+                        //   padding: const EdgeInsets.all(10),
+                        //   decoration: BoxDecoration(
+                        //     borderRadius: BorderRadius.circular(10),
+                        //   ),
+                        //   child: Text(
+                        //     emoji,
+                        //     style: TextStyle(
+                        //       fontSize: 40,
+                        //       color: Colors.black,
+                        //     ),
+                        //   ),
+                        // ),
+                      ],
+                    ),
+                  ],
+                ),
                 SizedBox(height: 15),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -117,7 +289,7 @@ class _HomePageState extends State<HomePage> {
                         MaterialPageRoute(
                           builder: (context) => AddStampTime(),
                         ),
-                      ),
+                      ).whenComplete(() => _reload(context)),
                       icon: Icon(Icons.library_add_outlined),
                       label: Text(
                         AppLocalizations.of(context)!.homeViewAddNewEntry,
@@ -141,6 +313,7 @@ class _HomePageState extends State<HomePage> {
 
               if (!snapshot.hasData) {
                 return Container(
+                  padding: const EdgeInsets.symmetric(horizontal: MIN_PADDING),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -148,6 +321,7 @@ class _HomePageState extends State<HomePage> {
                         String.fromCharCode(0x1F629),
                         style: TextStyle(
                           fontSize: 50,
+                          color: Colors.black,
                         ),
                       ),
                       Center(
@@ -166,9 +340,14 @@ class _HomePageState extends State<HomePage> {
                 );
               }
 
+              double height = MediaQuery.of(context).size.height;
               final content = snapshot.data as Map<String, dynamic>;
               if (content.isEmpty) {
                 return Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: MIN_PADDING,
+                    vertical: height * 0.12,
+                  ),
                   child: Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -182,6 +361,7 @@ class _HomePageState extends State<HomePage> {
                                 String.fromCharCode(0x1F389),
                                 style: TextStyle(
                                   fontSize: 30,
+                                  color: Colors.black,
                                 ),
                               ),
                             ),
@@ -189,18 +369,14 @@ class _HomePageState extends State<HomePage> {
                             Text(
                               AppLocalizations.of(context)!
                                   .homeViewStampTimeEmpty1,
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: "Roboto",
-                                letterSpacing: 2.5,
-                              ),
+                              style: Theme.of(context).textTheme.headline2,
                             ),
                             SizedBox(width: 5),
                             Text(
                               String.fromCharCode(0x1F389),
                               style: TextStyle(
                                 fontSize: 30,
+                                color: Colors.black,
                               ),
                             ),
                           ],
@@ -219,7 +395,10 @@ class _HomePageState extends State<HomePage> {
                               ),
                               WidgetSpan(
                                 alignment: PlaceholderAlignment.middle,
-                                child: Icon(Icons.add_box_rounded),
+                                child: Icon(
+                                  Icons.add_to_photos_outlined,
+                                  color: AppThemes.primaryColor,
+                                ),
                               ),
                               TextSpan(
                                 text: AppLocalizations.of(context)!
@@ -419,10 +598,6 @@ class _HomePageState extends State<HomePage> {
                                   .update(today.year, (value) => annual);
                               historyJson.writeAll(history.toJson());
 
-                              setState(() {
-                                // ToDo: update the complete state right
-                              });
-
                               return Future.value(true);
                             }
 
@@ -434,12 +609,15 @@ class _HomePageState extends State<HomePage> {
                                     date: stamp.currentDay,
                                   ),
                                 ),
-                              );
+                              ).whenComplete(() => _reload(context));
                             }
 
                             return Future.value(false);
                           },
-                        )
+                          onDismissed: (direction) {
+                            _reload(context);
+                          },
+                        ),
                       ],
                     );
                   },
@@ -449,168 +627,6 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-    );
-  }
-
-  Column buildTimeInformation() {
-    num remainingHours = requiredHoursPerWeek - trackedHours;
-    num indicatorValue = (trackedHours / requiredHoursPerWeek);
-    double width = MediaQuery.of(context).size.width - (MIN_PADDING * 2);
-
-    var previousEarnings =
-        NumberFormat.simpleCurrency().format(hourlyWages * trackedHours);
-
-    var brightness = MediaQuery.of(context).platformBrightness;
-    bool darkModeOn = brightness == Brightness.dark;
-
-    String? motivationMessage;
-    String? emoji;
-
-    if (indicatorValue > 1.1) {
-      motivationMessage =
-          AppLocalizations.of(context)!.homeViewMotivationMessage110;
-      emoji = String.fromCharCode(0x1F92F);
-    } else if (indicatorValue > 1) {
-      motivationMessage =
-          AppLocalizations.of(context)!.homeViewMotivationMessage100;
-      emoji = String.fromCharCode(0x1F973);
-    } else if (indicatorValue > 0.75) {
-      motivationMessage =
-          AppLocalizations.of(context)!.homeViewMotivationMessage75;
-      emoji = String.fromCharCode(0x231B);
-    } else if (indicatorValue > 0.5) {
-      motivationMessage =
-          AppLocalizations.of(context)!.homeViewMotivationMessage50;
-      emoji = String.fromCharCode(0x1F917);
-    } else if (indicatorValue > 0.1) {
-      motivationMessage =
-          AppLocalizations.of(context)!.homeViewMotivationMessage10;
-      emoji = String.fromCharCode(0x1F971);
-    } else {
-      motivationMessage =
-          AppLocalizations.of(context)!.homeViewMotivationMessage0;
-      emoji = String.fromCharCode(0x1F971);
-    }
-
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            buildTimeInformationBox(
-              context,
-              trackedHours,
-              AppLocalizations.of(context)!.homeViewHoursTracked,
-            ),
-            SizedBox(width: 15),
-            (remainingHours.isNegative)
-                ? buildTimeInformationBox(context, remainingHours.abs(),
-                    AppLocalizations.of(context)!.homeViewOvertime)
-                : buildTimeInformationBox(context, remainingHours,
-                    AppLocalizations.of(context)!.homeViewRemainingHours),
-          ],
-        ),
-        SizedBox(height: 15),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              AppLocalizations.of(context)!.homeViewWorkProgress,
-              style: Theme.of(context).textTheme.headline2,
-            ),
-            Text(
-              NumberFormat.decimalPercentPattern(decimalDigits: 2)
-                  .format(indicatorValue),
-              style: Theme.of(context).textTheme.bodyText1,
-            ),
-          ],
-        ),
-        SizedBox(height: 8),
-        Stack(
-          children: [
-            Container(
-              height: 20,
-              width: width,
-              decoration: BoxDecoration(
-                color: darkModeOn ? AppThemes.richBlack : Colors.grey.shade300,
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-            Container(
-              constraints: BoxConstraints(
-                minWidth: 0,
-                maxWidth: width,
-              ),
-              height: 20,
-              width: width * (trackedHours / requiredHoursPerWeek),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                boxShadow: [
-                  BoxShadow(
-                    blurRadius: 8,
-                    color: AppThemes.blue,
-                  )
-                ],
-                gradient: LinearGradient(
-                  begin: Alignment.bottomLeft,
-                  end: Alignment.topRight,
-                  colors: [
-                    AppThemes.neonBlue,
-                    AppThemes.primaryColor,
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: 15),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Expanded(
-              child: RichText(
-                overflow: TextOverflow.clip,
-                text: TextSpan(
-                  style: Theme.of(context).textTheme.headline6,
-                  children: [
-                    TextSpan(
-                      text: AppLocalizations.of(context)!
-                          .homeViewMoneyInformationPart1,
-                    ),
-                    TextSpan(
-                      text: previousEarnings,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    TextSpan(
-                      text: AppLocalizations.of(context)!
-                          .homeViewMoneyInformationPart2,
-                    ),
-                    TextSpan(text: motivationMessage),
-                  ],
-                ),
-              ),
-            ),
-            // SizedBox(width: 10),
-            // Container(
-            //   padding: const EdgeInsets.all(10),
-            //   decoration: BoxDecoration(
-            //     borderRadius: BorderRadius.circular(10),
-            //   ),
-            //   child: Text(
-            //     emoji,
-            //     style: TextStyle(
-            //       fontSize: 40,
-            //       color: Colors.black,
-            //     ),
-            //   ),
-            // ),
-          ],
-        ),
-      ],
     );
   }
 

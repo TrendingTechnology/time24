@@ -14,7 +14,7 @@
     "homeViewStampTimeError": "Contact our support, we try to fix the problem with you. The existing files cannot be opened.",
     "homeViewStampTimeEmpty1": "HELLO",
     "homeViewStampTimeEmpty2": "Fill out your profile in the settings to be able to create entries. After setting the profile, simply press the ",
-    "homeViewStampTimeEmpty3": " at the top right.",
+    "homeViewStampTimeEmpty3": " relatively centered on the right side.",
     "homeViewHoursTracked": "Hours Tracked",
     "homeViewRemainingHours": "Remaining Hours",
     "homeViewOvertime": "Overtime",
@@ -46,6 +46,7 @@
     "addStampTimeDuplicationErrorMessage1": "An entry for ",
     "addStampTimeDuplicationErrorMessage2": " is already existing in your files. Should we overwrite the entry?",
     "addStampTimeDuplicationOverwrite": "Overwrite",
+    "addStampTimeDuplicationEdit": "Edit",
     "addStampTimeDuplicationClose": "Cancel",
     "addStampTimeDescription": "All of the data you provide here will not disappear after you close the app. It is cached until the device is restarted.",
     "addStampTimeChangeDay": "Change Day",
@@ -60,5 +61,8 @@
     "addStampTimeBreakDescription": "Insert the time when you started and ended your break.",
     "addStampTimeAddOneMoreBreak": "Add one more break",
     "addStampTimeNotes": "Notes",
-    "addStampTimeNotesHintText": "Make a note of what you did that day."
+    "addStampTimeNotesHintText": "Make a note of what you did that day.",
+    "addStampTimeSaveErrorTitle": "Not so fast %s",
+    "addStampTimeSaveErrorMessage": "In order to be able to save a working day, you must have entered your start and end of work."
+
 }
